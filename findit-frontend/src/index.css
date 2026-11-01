@@ -1,0 +1,1147 @@
+/* ---------- 1. COLORS ----------
+   Defined once here, used everywhere with var(--name).
+   To change the theme later, edit only these values. */
+:root {
+  --green: #0E7C6B;
+  --green-dark: #0B5F52;
+  --green-soft: #E3F3EE;
+  --ink: #14211F;
+  --muted: #566763;
+  --line: #E3E9E6;
+  --bg: #F6F8F7;
+  --red: #A33A26;
+  --red-soft: #FCE9E4;
+}
+
+
+/* ---------- 2. BASE ---------- */
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Manrope, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.sub {
+  margin: 6px 0 28px;
+  color: var(--muted);
+}
+
+.meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.desc {
+  margin: 10px 0 16px;
+  font-size: 14px;
+}
+
+.link {
+  color: var(--green-dark);
+  font-weight: 700;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+
+/* ---------- 3. PAGE LAYOUT (sticky footer) ----------
+   .app is the whole page as a vertical flex column.
+   .main grows to fill the space, which pushes the footer down. */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+}
+
+
+/* ---------- 4. NAVBAR ---------- */
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 0 40px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.logo b {
+  color: var(--green);
+}
+
+.links {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.links a {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4A5B57;
+}
+
+/* NavLink adds the "active" class to the current page's link */
+.links a.active {
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+
+/* ---------- 5. FOOTER ---------- */
+.footer {
+  padding: 32px 40px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+
+/* ---------- 6. BUTTONS ----------
+   Use: className="btn"  or  "btn alt"  or  "btn no"
+   Add "sm" for a smaller button: "btn alt sm" */
+.btn {
+  display: inline-block;
+  border: 0;
+  border-radius: 10px;
+  background: var(--green);
+  color: #fff;
+  font: 700 15px Manrope, system-ui, sans-serif;
+  padding: 12px 22px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.btn.alt {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid #D3DCD8;
+}
+
+.btn.no {
+  background: #fff;
+  color: var(--red);
+  border: 1px solid #E7B9AF;
+}
+
+.btn.sm {
+  padding: 8px 14px;
+  font-size: 13px;
+  min-height: 36px;
+  border-radius: 8px;
+}
+
+
+/* ---------- 7. FORM INPUTS ---------- */
+input,
+select,
+textarea {
+  font: 500 15px Manrope, system-ui, sans-serif;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid #D3DCD8;
+  border-radius: 10px;
+  padding: 11px 12px;
+  min-height: 44px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+/* Two columns side by side (used in Register) */
+.f2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.error {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--red);
+}
+
+
+/* ---------- 8. CARDS ---------- */
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.card h3 {
+  margin: 14px 0 4px;
+  font-size: 18px;
+}
+
+/* Responsive grid: as many 300px+ columns as will fit */
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: 16px;
+}
+
+
+/* ---------- 9. TAGS ----------
+   Use: className="tag lost"  /  "tag found"  /  "tag open" etc. */
+.tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+.tag.lost,
+.tag.rejected {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.tag.found,
+.tag.approved {
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.tag.open {
+  background: #E8EEFB;
+  color: #2447A8;
+}
+
+.tag.pending {
+  background: #FDF0D5;
+  color: #8A5200;
+}
+
+.tag.resolved {
+  background: #ECEFEE;
+  color: #3B4A47;
+}
+
+
+/* ---------- 10. HOME PAGE ---------- */
+
+/* Dark green banner at the top. The gradients stack on a solid color. */
+.hero {
+  background:
+    linear-gradient(rgba(6, 38, 34, 0.62), rgba(6, 38, 34, 0.86)),
+    radial-gradient(circle at 18% 25%, #2BB39A 0, transparent 42%),
+    radial-gradient(circle at 85% 75%, #0F8B76 0, transparent 48%),
+    #0A3F37;
+  color: #fff;
+  padding: 72px 24px 88px;
+  text-align: center;
+}
+
+.hero h1 {
+  color: #fff;
+  font-size: clamp(40px, 6vw, 60px);
+  line-height: 1.05;
+}
+
+.hero h1 span {
+  color: #7FE3CF;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9FEBDB;
+}
+
+.lead {
+  max-width: 560px;
+  margin: 16px auto 32px;
+  color: #D6EFE9;
+  font-size: 17px;
+}
+
+/* White search bar floating on the hero */
+.sbar {
+  display: flex;
+  gap: 8px;
+  max-width: 760px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 8px;
+  border-radius: 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+}
+
+.sbar input,
+.sbar select {
+  border: 0;
+  background: transparent;
+  flex: 1;
+  min-width: 0;
+}
+
+.sbar input {
+  flex: 2.5;
+}
+
+.sbar input:focus,
+.sbar select:focus {
+  outline: none;
+}
+
+/* "Recent reports" section */
+.sec {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+.sec-head {
+  margin-bottom: 20px;
+}
+
+.sec-head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+
+/* ---------- 11. LOGIN AND REGISTER PAGES ---------- */
+
+/* Two halves: green panel left, form right.
+   Min height fills the screen so the footer stays at the bottom. */
+.auth {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 150px);
+}
+
+.side {
+  background:
+    linear-gradient(rgba(6, 38, 34, 0.62), rgba(6, 38, 34, 0.86)),
+    radial-gradient(circle at 18% 25%, #2BB39A 0, transparent 42%),
+    radial-gradient(circle at 85% 75%, #0F8B76 0, transparent 48%),
+    #0A3F37;
+  color: #fff;
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.side h1 {
+  color: #fff;
+  font-size: clamp(40px, 6vw, 60px);
+  line-height: 1.05;
+}
+
+.side h1 span {
+  color: #7FE3CF;
+}
+
+.side .lead {
+  margin: 16px 0 0;
+  text-align: left;
+}
+
+.pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+}
+
+.box {
+  width: 100%;
+  max-width: 440px;
+}
+
+.box h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.box input {
+  width: 100%;
+}
+
+.box .btn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.switch {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Phones: stack the two halves vertically */
+@media (max-width: 800px) {
+  .auth {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    padding: 40px 24px;
+  }
+
+  .f2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 12. RESPONSIVE (MOBILE) ----------
+   Applies to screens 800px wide or smaller.
+   The menu button is hidden on desktop and shown only here. */
+
+.menu-btn {
+  display: none;
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  border: 1px solid #D3DCD8;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  h1 {
+    font-size: 28px;
+  }
+
+  /* Navbar: links become a dropdown under the bar */
+  .nav {
+    position: relative;
+    padding: 0 16px;
+  }
+
+  .menu-btn {
+    display: block;
+  }
+
+  .links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 8px 16px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .links.open {
+    display: flex;
+  }
+
+  .links a {
+    padding: 12px 14px;
+  }
+
+  /* Home: smaller hero, search bar stacks vertically */
+  .hero {
+    padding: 48px 16px 56px;
+  }
+
+  .sbar {
+    flex-direction: column;
+  }
+
+  .sbar input,
+  .sbar select {
+    flex: none;
+    width: 100%;
+    border: 1px solid var(--line);
+  }
+
+  .sec {
+    padding: 32px 16px 48px;
+  }
+
+  .sec-head {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* Login and Register: no forced full-screen height */
+  .auth {
+    min-height: auto;
+  }
+
+  .pane {
+    padding: 32px 16px;
+  }
+
+  .wrap {
+    padding: 24px 16px 48px;
+  }
+
+  .footer {
+    padding: 24px 16px;
+  }
+}
+
+/* ---------- 13. REPORT AN ITEM PAGE ---------- */
+
+/* Two-column form. Items with class "full" span both columns. */
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  max-width: 720px;
+}
+
+.form input,
+.form select,
+.form textarea {
+  width: 100%;
+}
+
+.form textarea {
+  resize: vertical;
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+/* Lost / Found radio buttons as two boxes */
+.seg {
+  display: flex;
+  gap: 10px;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  background: #fff;
+  border: 1px solid #D3DCD8;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.opt input {
+  width: auto;
+  min-height: 0;
+  margin: 0;
+}
+
+.hint {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.preview {
+  display: block;
+  max-width: 220px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Mobile: single column, full-width buttons */
+@media (max-width: 800px) {
+  .form {
+    grid-template-columns: 1fr;
+  }
+
+  .actions .btn {
+    flex: 1;
+  }
+}
+
+
+/* ---------- 14. ITEM DETAILS PAGE ---------- */
+
+.back {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: var(--green-dark);
+}
+
+/* Two columns: item info (wider) and claim box */
+.cols {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.tags {
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.item-title {
+  margin-top: 12px;
+}
+
+/* Category, Location, Date, Contact in a 2 x 2 grid */
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.facts div {
+  margin: 0;
+}
+
+.facts dt {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.facts dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+}
+
+.small-title {
+  margin: 24px 0 8px;
+  font-size: 16px;
+}
+
+.small-title.first {
+  margin-top: 0;
+}
+
+.spaced {
+  margin: 8px 0 14px;
+}
+
+/* Status tracker: three boxes, the current one turns green */
+.track {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.track li {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3B4A47;
+  background: #ECEFEE;
+  border-radius: 10px;
+}
+
+.track li.now {
+  background: var(--green);
+  color: #fff;
+}
+
+.success {
+  margin: 0;
+  padding: 14px;
+  font-weight: 600;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  border-radius: 10px;
+}
+
+.card textarea {
+  width: 100%;
+  resize: vertical;
+  margin-bottom: 4px;
+}
+
+/* Mobile: claim box goes under the item info */
+@media (max-width: 800px) {
+  .cols {
+    grid-template-columns: 1fr;
+  }
+
+  .track {
+    flex-direction: column;
+  }
+}
+
+/* ---------- 15. MY REPORTS PAGE ---------- */
+
+.page-head {
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* Filter chips */
+.chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  padding: 10px 16px;
+  font: 600 14px Manrope, system-ui, sans-serif;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid #D3DCD8;
+  border-radius: 99px;
+  cursor: pointer;
+}
+
+.chip.on {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+/* One row in a list */
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #EEF2F0;
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.item p {
+  margin: 0;
+}
+
+.item-name {
+  font-weight: 700;
+}
+
+.item-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Mobile: heading on top, full-width button, space before the chips */
+@media (max-width: 800px) {
+  .page-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .page-head .sub {
+    margin-bottom: 16px;
+  }
+
+  .page-head .btn {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .item-right {
+    justify-content: flex-start;
+  }
+}
+
+/* ---------- 16. MY CLAIMS PAGE ---------- */
+/* Chips, rows and tags are reused from section 15 and 9. */
+
+.claim-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.claim-text {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+/* Green box shown when a claim is approved */
+.contact-box {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  border-radius: 10px;
+}
+
+.claim-info .hint {
+  margin-top: 10px;
+}
+
+/* ---------- 17. ADMIN NAVBAR AND DASHBOARD ---------- */
+
+.admin-label {
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-dark);
+  background: var(--green-soft);
+  border-radius: 99px;
+  vertical-align: middle;
+}
+
+/* Number bubble on the Claims link */
+.badge {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 4px;
+  padding: 1px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  color: #fff;
+  background: var(--red);
+  border-radius: 99px;
+}
+
+/* Four number cards */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat b {
+  display: block;
+  font-size: 36px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.stat span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Left column (bars + table) and right column (pending claims) */
+.dash-cols {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.gap-top {
+  margin-top: 24px;
+}
+
+/* Status bars */
+.bar-row {
+  margin-bottom: 14px;
+}
+
+.bar-text {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.bar-track {
+  height: 10px;
+  background: #ECEFEE;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.bar-fill.open { background: #2447A8; }
+.bar-fill.pending { background: #E0A12B; }
+.bar-fill.resolved { background: var(--green); }
+
+/* Table (reused by the other admin pages) */
+.scroll {
+  overflow-x: auto;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tbl th {
+  padding: 8px 10px;
+  font-size: 12px;
+  text-align: left;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--line);
+}
+
+.tbl td {
+  padding: 12px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid #EEF2F0;
+}
+
+.tbl tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Mobile: columns stack, table scrolls sideways inside its card */
+@media (max-width: 800px) {
+  .dash-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .stat b {
+    font-size: 30px;
+  }
+
+  .tbl th,
+  .tbl td {
+    white-space: nowrap;
+  }
+}
+
+/* ---------- 18. ADMIN LISTINGS PAGE ---------- */
+/* Table styles (.tbl, .scroll) are reused from section 17. */
+
+/* Search box and two dropdowns in one row */
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filters > * {
+  flex: 1;
+  min-width: 150px;
+}
+
+.filters > input {
+  flex: 2;
+}
+
+/* Small dropdown inside the table */
+.status-select {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tbl td .meta {
+  margin-top: 2px;
+}
+
+.tbl td .actions {
+  gap: 8px;
+}
+
+.empty {
+  padding: 24px 10px;
+  text-align: center;
+  color: var(--muted);
+}
+
+/* Mobile: filters stack in one column */
+@media (max-width: 800px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters > * {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* ---------- 19. ADMIN CLAIMS PAGE ---------- */
+/* Table, chips, tags and buttons are reused from earlier sections. */
+
+/* Let the claim text wrap on desktop instead of stretching the table */
+.claim-cell {
+  min-width: 200px;
+  max-width: 320px;
+}
+
+/* Mobile: keep the text on one line so the table scrolls sideways */
+@media (max-width: 800px) {
+  .claim-cell {
+    min-width: 260px;
+    white-space: normal;
+  }
+}
+
+/* ---------- 20. LOGIN STATE ---------- */
+
+/* "Log out" is a button, styled to look like the nav links */
+.links .linkbtn {
+  padding: 10px 14px;
+  font: 600 14px Manrope, system-ui, sans-serif;
+  color: var(--red);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.links .linkbtn:hover {
+  background: var(--red-soft);
+}
+
+/* Demo accounts box on the Login page */
+.demo-box {
+  margin-top: 24px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  background: #fff;
+  border: 1px dashed #D3DCD8;
+  border-radius: 10px;
+}
+
+.demo-box b {
+  color: var(--ink);
+}
+
+.demo-box p {
+  margin: 4px 0 0;
+}
+
+@media (max-width: 800px) {
+  .links .linkbtn {
+    padding: 12px 14px;
+    text-align: left;
+  }
+}
+
+/* ---------- 21. FORGOT PASSWORD ---------- */
+/* Page layout and .success are reused from earlier sections. */
+
+/* "Password" label on the left, "Forgot password?" on the right */
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.label-row label {
+  margin-bottom: 0;
+}
+
+.forgot {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.forgot:hover {
+  text-decoration: underline;
+}
+
+/* ---------- 22. FIELD VALIDATION ---------- */
+
+/* Red message under a field */
+.field-error {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+}
+
+/* Red border on a field with a problem */
+input.invalid {
+  border-color: var(--red);
+}
