@@ -10,6 +10,7 @@ const steps = [
 ];
 
 export default function ItemDetails() {
+  const { id } = useParams();
   const { user } = useAuth();
   const item = items.find((i) => i.id === Number(id));
 
@@ -93,12 +94,12 @@ export default function ItemDetails() {
           )}
 
           {item.status === "open" && !user && (
-  <p className="hint">
-    Please <Link to="/login" className="link">log in</Link> to claim this item.
-  </p>
-)}
+            <p className="hint">
+              Please <Link to="/login" className="link">log in</Link> to claim this item.
+            </p>
+          )}
 
-{item.status === "open" && !submitted && user && (
+          {item.status === "open" && user && !submitted && (
             <form onSubmit={handleClaim}>
               <p className="hint spaced">
                 Describe details only the owner would know. The poster or an
@@ -122,7 +123,7 @@ export default function ItemDetails() {
             </form>
           )}
 
-          {item.status === "open" && submitted && (
+          {item.status === "open" && user && submitted && (
             <p className="success">
               Claim submitted. You can follow its status in My claims.
             </p>
