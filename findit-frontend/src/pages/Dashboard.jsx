@@ -1,6 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { items } from "../data/items";
-import { allClaims as claims } from "../data/allClaims";
+import { api } from "../api";
 
 const statusLabel = {
   open: "Open",
@@ -9,23 +9,39 @@ const statusLabel = {
 };
 
 export default function Dashboard() {
-  // Numbers are calculated from the data, not typed by hand
-  const total = items.length;
-  const openCount = items.filter((i) => i.status === "open").length;
-  const pendingCount = items.filter((i) => i.status === "pending").length;
-  const resolvedCount = items.filter((i) => i.status === "resolved").length;
+  const [stats, setStats] = useState(null);
+  const [error, setError] = useState("");
+
+  // One request gets all the numbers, the recent reports and the pending claims
+  useEffect(() => {
+    api("/stats")
+      .then(setStats)
+      .catch((err) => setError(err.message));
+  }, []);
+
+  if (error) {
+    return (
+      <div className="wrap">
+        <h1>Dashboard</h1>
+        <p className="error">{error}</p>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="wrap">
+        <h1>Dashboard</h1>
+        <p className="hint">Loading...</p>
+      </div>
+    );
+  }
 
   const bars = [
-    { key: "open", label: "Open", count: openCount },
-    { key: "pending", label: "Claim pending", count: pendingCount },
-    { key: "resolved", label: "Resolved", count: resolvedCount },
+    { key: "open", label: "Open", count: stats.open },
+    { key: "pending", label: "Claim pending", count: stats.pending },
+    { key: "resolved", label: "Resolved", count: stats.resolved },
   ];
-
-  const recent = items.slice(0, 4);
-
-  const pendingClaims = claims
-    .filter((c) => c.status === "pending")
-    .map((c) => ({ ...c, item: items.find((i) => i.id === c.itemId) }));
 
   return (
     <div className="wrap">
@@ -35,19 +51,19 @@ export default function Dashboard() {
       {/* Four number cards */}
       <div className="stats">
         <div className="card stat">
-          <b>{total}</b>
+          <b>{stats.total}</b>
           <span>Total reports</span>
         </div>
         <div className="card stat">
-          <b>{openCount}</b>
+          <b>{stats.open}</b>
           <span>Open</span>
         </div>
         <div className="card stat">
-          <b>{pendingClaims.length}</b>
+          <b>{stats.pendingClaimsCount}</b>
           <span>Claims pending</span>
         </div>
         <div className="card stat">
-          <b>{resolvedCount}</b>
+          <b>{stats.resolved}</b>
           <span>Resolved</span>
         </div>
       </div>
@@ -66,7 +82,9 @@ export default function Dashboard() {
                 <div className="bar-track">
                   <div
                     className={`bar-fill ${b.key}`}
-                    style={{ width: `${total ? (b.count / total) * 100 : 0}%` }}
+                    style={{
+                      width: `${stats.total ? (b.count / stats.total) * 100 : 0}%`,
+                    }}
                   />
                 </div>
               </div>
@@ -89,22 +107,28 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recent.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.name}</td>
-                      <td>
-                        <span className={`tag ${item.type}`}>
-                          {item.type === "lost" ? "Lost" : "Found"}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`tag ${item.status}`}>
-                          {statusLabel[item.status]}
-                        </span>
-                      </td>
-                      <td>{item.date}</td>
+                  {stats.recent.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className="empty">No reports yet.</td>
                     </tr>
-                  ))}
+                  ) : (
+                    stats.recent.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.name}</td>
+                        <td>
+                          <span className={`tag ${item.type}`}>
+                            {item.type === "lost" ? "Lost" : "Found"}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`tag ${item.status}`}>
+                            {statusLabel[item.status]}
+                          </span>
+                        </td>
+                        <td>{item.date}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -114,13 +138,13 @@ export default function Dashboard() {
         {/* Right: pending claims */}
         <div className="card">
           <h2 className="small-title first">Pending claims</h2>
-          {pendingClaims.length === 0 ? (
+          {stats.pendingClaims.length === 0 ? (
             <p className="hint">No claims waiting for review.</p>
           ) : (
-            pendingClaims.map((c) => (
+            stats.pendingClaims.map((c) => (
               <div key={c.id} className="item">
                 <div>
-                  <p className="item-name">{c.item.name}</p>
+                  <p className="item-name">{c.itemName}</p>
                   <p className="meta">Claimed by {c.claimant} · {c.submitted}</p>
                 </div>
                 <Link to="/admin/claims" className="btn alt sm">View</Link>
