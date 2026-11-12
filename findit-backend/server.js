@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pool from "./src/db.js";
+import authRoutes from "./src/routes/auth.js";
+import itemRoutes from "./src/routes/items.js";
+import categoryRoutes from "./src/routes/categories.js";
 
 dotenv.config();
 
@@ -21,6 +24,17 @@ app.get("/api/health", async (req, res) => {
     console.error(err);
     res.status(500).json({ status: "error", database: "not connected" });
   }
+});
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/items", itemRoutes);
+app.use("/api/categories", categoryRoutes);
+
+// Any error that was not handled inside a route ends up here
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: "Something went wrong on the server." });
 });
 
 const PORT = process.env.PORT || 5000;
