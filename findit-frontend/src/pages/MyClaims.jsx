@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { items } from "../data/items";
-import { claims } from "../data/claims";
+import { api } from "../api";
 
 const filters = [
   { key: "all", label: "All" },
@@ -18,15 +17,19 @@ const statusLabel = {
 
 export default function MyClaims() {
   const [filter, setFilter] = useState("all");
+  const [claims, setClaims] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Attach the matching item to each claim
-  const myClaims = claims.map((c) => ({
-    ...c,
-    item: items.find((i) => i.id === c.itemId),
-  }));
+  useEffect(() => {
+    api("/claims/mine")
+      .then(setClaims)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const shown =
-    filter === "all" ? myClaims : myClaims.filter((c) => c.status === filter);
+    filter === "all" ? claims : claims.filter((c) => c.status === filter);
 
   return (
     <div className="wrap">
@@ -51,15 +54,19 @@ export default function MyClaims() {
       </div>
 
       <div className="card">
-        {shown.length === 0 ? (
+        {loading ? (
+          <p className="hint">Loading...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
+        ) : shown.length === 0 ? (
           <p className="hint">No claims in this category.</p>
         ) : (
           shown.map((claim) => (
             <div key={claim.id} className="item">
               <div className="claim-info">
-                <p className="item-name">{claim.item.name}</p>
+                <p className="item-name">{claim.itemName}</p>
                 <p className="meta">
-                  {claim.item.category} · {claim.item.location} · Claimed on {claim.submitted}
+                  {claim.category} · {claim.location} · Claimed on {claim.submitted}
                 </p>
                 <p className="claim-text">Your answer: {claim.answer}</p>
 
@@ -79,7 +86,7 @@ export default function MyClaims() {
                 <span className={`tag ${claim.status}`}>
                   {statusLabel[claim.status]}
                 </span>
-                <Link to={`/items/${claim.item.id}`} className="btn alt sm">View item</Link>
+                <Link to={`/items/${claim.itemId}`} className="btn alt sm">View item</Link>
               </div>
             </div>
           ))

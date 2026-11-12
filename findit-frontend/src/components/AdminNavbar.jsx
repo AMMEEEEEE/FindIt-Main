@@ -1,13 +1,21 @@
-import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { allClaims } from "../data/allClaims";
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { api } from "../api";
 import { useAuth } from "../context/AuthContext";
 
 export default function AdminNavbar() {
   const [open, setOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const pendingCount = allClaims.filter((c) => c.status === "pending").length;
+  const location = useLocation();
+
+  // Ask the server for the pending count every time the admin changes page
+  useEffect(() => {
+    api("/stats")
+      .then((data) => setPendingCount(data.pendingClaimsCount))
+      .catch(() => setPendingCount(0));
+  }, [location.pathname]);
 
   function handleLogout() {
     logout();

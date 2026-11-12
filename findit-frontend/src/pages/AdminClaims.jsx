@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { items } from "../data/items";
-import { allClaims } from "../data/allClaims";
+import { api } from "../api";
 
 const filters = [
   { key: "all", label: "All" },
@@ -17,20 +16,43 @@ const statusLabel = {
 };
 
 export default function AdminClaims() {
-  // Copy the data into state so approve/reject shows on screen
-  const [claims, setClaims] = useState(allClaims);
+  const [claims, setClaims] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState(null);
 
-  const withItems = claims.map((c) => ({
-    ...c,
-    item: items.find((i) => i.id === c.itemId),
-  }));
+  useEffect(() => {
+    api("/claims")
+      .then(setClaims)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const shown =
-    filter === "all" ? withItems : withItems.filter((c) => c.status === filter);
+    filter === "all" ? claims : claims.filter((c) => c.status === filter);
 
-  function review(id, newStatus) {
-    setClaims(claims.map((c) => (c.id === id ? { ...c, status: newStatus } : c)));
+  async function review(claim, newStatus) {
+    if (
+      newStatus === "approved" &&
+      !window.confirm(
+        `Approve this claim by ${claim.claimant}? They will see the finder's contact number.`
+      )
+    ) {
+      return;
+    }
+
+    setBusyId(claim.id);
+    setError("");
+    try {
+      await api(`/claims/${claim.id}`, { method: "PATCH", body: { status: newStatus } });
+      // Update this row on screen. The server has already updated the item too.
+      setClaims(claims.map((c) => (c.id === claim.id ? { ...c, status: newStatus } : c)));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyId(null);
+    }
   }
 
   return (
@@ -50,6 +72,8 @@ export default function AdminClaims() {
         ))}
       </div>
 
+      {error && <p className="error">{error}</p>}
+
       <div className="card">
         <div className="scroll">
           <table className="tbl">
@@ -64,7 +88,11 @@ export default function AdminClaims() {
               </tr>
             </thead>
             <tbody>
-              {shown.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="empty">Loading...</td>
+                </tr>
+              ) : shown.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="empty">No claims in this category.</td>
                 </tr>
@@ -72,11 +100,14 @@ export default function AdminClaims() {
                 shown.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <Link to={`/items/${c.item.id}`} className="link">
-                        {c.item.name}
+                      <Link to={`/items/${c.itemId}`} className="link">
+                        {c.itemName}
                       </Link>
                     </td>
-                    <td>{c.claimant}</td>
+                    <td>
+                      {c.claimant}
+                      <p className="meta">{c.claimantRegNo}</p>
+                    </td>
                     <td className="claim-cell">{c.answer}</td>
                     <td>
                       <span className={`tag ${c.status}`}>{statusLabel[c.status]}</span>
@@ -85,10 +116,18 @@ export default function AdminClaims() {
                     <td>
                       {c.status === "pending" ? (
                         <div className="actions">
-                          <button className="btn sm" onClick={() => review(c.id, "approved")}>
+                          <button
+                            className="btn sm"
+                            disabled={busyId === c.id}
+                            onClick={() => review(c, "approved")}
+                          >
                             Approve
                           </button>
-                          <button className="btn no sm" onClick={() => review(c.id, "rejected")}>
+                          <button
+                            className="btn no sm"
+                            disabled={busyId === c.id}
+                            onClick={() => review(c, "rejected")}
+                          >
                             Reject
                           </button>
                         </div>
