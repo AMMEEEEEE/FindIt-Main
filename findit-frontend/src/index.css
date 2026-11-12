@@ -1145,3 +1145,38 @@ label {
 input.invalid {
   border-color: var(--red);
 }
+
+/* ---------- 23. SHOW / HIDE PASSWORD ---------- */
+
+/* The box holds the input, and the button sits on top at the right edge */
+.pw-wrap {
+  position: relative;
+}
+
+.pw-wrap input {
+  width: 100%;
+  padding-right: 64px; /* room for the button, so long passwords don't run under it */
+}
+
+.pw-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  padding: 6px 8px;
+  font: 700 13px Manrope, system-ui, sans-serif;
+  color: var(--green-dark);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pw-toggle:hover {
+  background: var(--green-soft);
+}
+
+/* Edge adds its own eye icon to password boxes. Hide it so there is only one. */
+input::-ms-reveal {
+  display: none;
+}

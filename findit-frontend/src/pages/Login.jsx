@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { useAuth } from "../context/AuthContext";
+import PasswordInput from "../components/PasswordInput";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -67,9 +68,8 @@ export default function Login() {
             <label htmlFor="password">Password</label>
             <Link to="/forgot-password" className="forgot">Forgot password?</Link>
           </div>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             placeholder="Your password"
             className={errors.password ? "invalid" : ""}
