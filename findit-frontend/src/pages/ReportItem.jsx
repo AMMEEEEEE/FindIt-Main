@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../api";
 
 const categories = ["Wallet", "Phone", "Keys", "Bag", "Books", "ID card", "Electronics", "Other"];
 
@@ -17,9 +18,12 @@ export default function ReportItem() {
     description: "",
   });
   const [photo, setPhoto] = useState(null);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
   }
 
   function handlePhoto(e) {
@@ -27,11 +31,19 @@ export default function ReportItem() {
     setPhoto(file ? URL.createObjectURL(file) : null);
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    // Fake submit for now. The real one will send data to the backend.
-    console.log("Report submitted:", form);
-    navigate("/my-reports");
+    setBusy(true);
+    setError("");
+
+    try {
+      await api("/items", { method: "POST", body: form });
+      navigate("/my-reports");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -95,7 +107,19 @@ export default function ReportItem() {
 
         <div className="full">
           <label htmlFor="contact">Your contact number</label>
-          <input id="contact" name="contact" type="tel" placeholder="10-digit mobile number" value={form.contact} onChange={handleChange} required />
+          <input
+            id="contact"
+            name="contact"
+            type="tel"
+            inputMode="numeric"
+            maxLength={10}
+            pattern="[0-9]{10}"
+            title="Enter a 10-digit mobile number"
+            placeholder="10-digit mobile number"
+            value={form.contact}
+            onChange={handleChange}
+            required
+          />
           <p className="hint">Shared with the owner only after their claim is approved.</p>
         </div>
 
@@ -108,10 +132,15 @@ export default function ReportItem() {
           <label htmlFor="photo">Photo (optional)</label>
           <input id="photo" type="file" accept="image/*" onChange={handlePhoto} />
           {photo && <img src={photo} alt="Preview" className="preview" />}
+          <p className="hint">Photo upload is coming soon. Your report is saved without the photo for now.</p>
         </div>
 
+        {error && <p className="error full">{error}</p>}
+
         <div className="full actions">
-          <button type="submit" className="btn">Submit report</button>
+          <button type="submit" className="btn" disabled={busy}>
+            {busy ? "Submitting..." : "Submit report"}
+          </button>
           <button type="button" className="btn alt" onClick={() => navigate(-1)}>Cancel</button>
         </div>
       </form>

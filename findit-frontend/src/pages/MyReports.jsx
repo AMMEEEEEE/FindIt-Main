@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { items } from "../data/items";
+import { api } from "../api";
 
 const filters = [
   { key: "all", label: "All" },
@@ -17,13 +17,20 @@ const statusLabel = {
 
 export default function MyReports() {
   const [filter, setFilter] = useState("all");
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Fake "my reports" for now: we pretend items 1, 3 and 5 are mine.
-  // With the backend, this will be the reports of the logged-in user.
-  const myReports = items.filter((i) => [1, 3, 5].includes(i.id));
+  // Runs once when the page opens: ask the server for my reports
+  useEffect(() => {
+    api("/items/mine")
+      .then(setReports)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const shown =
-    filter === "all" ? myReports : myReports.filter((i) => i.status === filter);
+    filter === "all" ? reports : reports.filter((i) => i.status === filter);
 
   return (
     <div className="wrap">
@@ -48,7 +55,11 @@ export default function MyReports() {
       </div>
 
       <div className="card">
-        {shown.length === 0 ? (
+        {loading ? (
+          <p className="hint">Loading...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
+        ) : shown.length === 0 ? (
           <p className="hint">No reports in this category.</p>
         ) : (
           shown.map((item) => (
