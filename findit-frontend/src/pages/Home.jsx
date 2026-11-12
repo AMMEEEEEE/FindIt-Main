@@ -1,18 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { items } from "../data/items";
+import { api } from "../api";
 import ItemCard from "../components/ItemCard";
 
 export default function Home() {
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const filtered = items.filter((item) => {
-    const text = `${item.name} ${item.category} ${item.location} ${item.description}`.toLowerCase();
-    const matchesSearch = text.includes(search.toLowerCase());
-    const matchesType = type === "" || item.type === type;
-    return matchesSearch && matchesType;
-  });
+  // Ask the server for items whenever the search or the type changes.
+  // The 300 ms wait means typing "wallet" sends one request, not six.
+  useEffect(() => {
+    let cancelled = false;
+
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (search.trim()) params.set("search", search.trim());
+      if (type) params.set("type", type);
+      const query = params.toString();
+
+      setLoading(true);
+      api(`/items${query ? "?" + query : ""}`)
+        .then((data) => {
+          if (!cancelled) {
+            setItems(data);
+            setError("");
+          }
+        })
+        .catch((err) => {
+          if (!cancelled) setError(err.message);
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+    }, 300);
+
+    // If the user types again before 300 ms pass, throw the old request away
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [search, type]);
 
   return (
     <>
@@ -44,11 +74,15 @@ export default function Home() {
           <Link to="/report" className="btn">Report an item</Link>
         </div>
 
-        {filtered.length === 0 ? (
+        {error ? (
+          <p className="error">{error}</p>
+        ) : loading && items.length === 0 ? (
+          <p className="sub">Loading...</p>
+        ) : items.length === 0 ? (
           <p className="sub">No reports match your search.</p>
         ) : (
           <div className="grid3">
-            {filtered.map((item) => (
+            {items.map((item) => (
               <ItemCard key={item.id} item={item} />
             ))}
           </div>

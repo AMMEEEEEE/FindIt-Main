@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { items } from "../data/items";
+import { api } from "../api";
 import { useAuth } from "../context/AuthContext";
 
 const steps = [
@@ -12,10 +12,66 @@ const steps = [
 export default function ItemDetails() {
   const { id } = useParams();
   const { user } = useAuth();
-  const item = items.find((i) => i.id === Number(id));
+
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const [answer, setAnswer] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [claimError, setClaimError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  // Load this item from the server whenever the address changes
+  useEffect(() => {
+    setLoading(true);
+    setLoadError("");
+    setSubmitted(false);
+    setAnswer("");
+    setClaimError("");
+
+    api(`/items/${id}`)
+      .then(setItem)
+      .catch((err) => {
+        setItem(null);
+        // 404 means "not found", anything else is a real problem
+        setLoadError(err.status === 404 ? "" : err.message);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  async function handleClaim(e) {
+    e.preventDefault();
+    setBusy(true);
+    setClaimError("");
+
+    try {
+      await api("/claims", { method: "POST", body: { itemId: item.id, answer } });
+      setSubmitted(true);
+      setItem({ ...item, status: "pending" });
+    } catch (err) {
+      setClaimError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="wrap">
+        <p className="hint">Loading...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="wrap">
+        <Link to="/" className="back">← Back to home</Link>
+        <p className="error">{loadError}</p>
+      </div>
+    );
+  }
 
   if (!item) {
     return (
@@ -25,13 +81,6 @@ export default function ItemDetails() {
         <p className="sub">This report does not exist or was removed.</p>
       </div>
     );
-  }
-
-  function handleClaim(e) {
-    e.preventDefault();
-    // Fake claim for now. The real one will be sent to the backend.
-    console.log("Claim submitted for item", item.id, ":", answer);
-    setSubmitted(true);
   }
 
   return (
@@ -85,21 +134,27 @@ export default function ItemDetails() {
         <div className="card">
           <h2 className="small-title first">Claim this item</h2>
 
-          {item.status === "resolved" && (
+          {submitted && (
+            <p className="success">
+              Claim submitted. You can follow its status in My claims.
+            </p>
+          )}
+
+          {!submitted && item.status === "resolved" && (
             <p className="hint">This item has been returned to its owner.</p>
           )}
 
-          {item.status === "pending" && (
+          {!submitted && item.status === "pending" && (
             <p className="hint">A claim is already being reviewed for this item.</p>
           )}
 
-          {item.status === "open" && !user && (
+          {!submitted && item.status === "open" && !user && (
             <p className="hint">
               Please <Link to="/login" className="link">log in</Link> to claim this item.
             </p>
           )}
 
-          {item.status === "open" && user && !submitted && (
+          {!submitted && item.status === "open" && user && (
             <form onSubmit={handleClaim}>
               <p className="hint spaced">
                 Describe details only the owner would know. The poster or an
@@ -109,9 +164,13 @@ export default function ItemDetails() {
               <textarea
                 id="claim"
                 rows="5"
+                maxLength={1000}
                 placeholder="e.g. What is inside, any marks, when and where you lost it"
                 value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
+                onChange={(e) => {
+                  setAnswer(e.target.value);
+                  setClaimError("");
+                }}
                 required
               />
               <p className="hint spaced">
@@ -119,14 +178,11 @@ export default function ItemDetails() {
                 approved, the finder's contact number appears here so you can
                 arrange the handover.
               </p>
-              <button type="submit" className="btn">Submit claim</button>
+              {claimError && <p className="error">{claimError}</p>}
+              <button type="submit" className="btn" disabled={busy}>
+                {busy ? "Submitting..." : "Submit claim"}
+              </button>
             </form>
-          )}
-
-          {item.status === "open" && user && submitted && (
-            <p className="success">
-              Claim submitted. You can follow its status in My claims.
-            </p>
           )}
         </div>
       </div>
