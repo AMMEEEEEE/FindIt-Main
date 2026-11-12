@@ -5,6 +5,7 @@ import pool from "./src/db.js";
 import authRoutes from "./src/routes/auth.js";
 import itemRoutes from "./src/routes/items.js";
 import categoryRoutes from "./src/routes/categories.js";
+import claimRoutes from "./src/routes/claims.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/claims", claimRoutes);
 
 // Any error that was not handled inside a route ends up here
 app.use((err, req, res, next) => {
