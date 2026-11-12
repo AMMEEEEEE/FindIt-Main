@@ -1,42 +1,50 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { api } from "../api";
 
 const AuthContext = createContext(null);
 
-// Demo accounts for testing. The backend will replace these.
-const demoUsers = [
-  { email: "user@college.edu", password: "user123", name: "Demo Student", role: "user" },
-  { email: "admin@college.edu", password: "admin123", name: "Admin", role: "admin" },
-];
-
 export function AuthProvider({ children }) {
-  // Read the saved login from the browser, so refreshing keeps you logged in
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("findit_user"));
-    } catch {
-      return null;
+  const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false); // false until we know if the saved login is still valid
+
+  // On page load: if a token is saved, ask the server who it belongs to
+  useEffect(() => {
+    const token = localStorage.getItem("findit_token");
+    if (!token) {
+      setReady(true);
+      return;
     }
-  });
 
-  function login(email, password) {
-    const found = demoUsers.find(
-      (u) => u.email === email.trim().toLowerCase() && u.password === password
-    );
-    if (!found) return null;
+    api("/auth/me")
+      .then((data) => setUser(data.user))
+      .catch((err) => {
+        // Only forget the login if the server rejected the token.
+        // If the server is just switched off, keep it.
+        if (err.status === 401 || err.status === 404) {
+          localStorage.removeItem("findit_token");
+        }
+      })
+      .finally(() => setReady(true));
+  }, []);
 
-    const loggedIn = { email: found.email, name: found.name, role: found.role };
-    setUser(loggedIn);
-    localStorage.setItem("findit_user", JSON.stringify(loggedIn));
-    return loggedIn;
+  async function login(email, password) {
+    const data = await api("/auth/login", { method: "POST", body: { email, password } });
+    localStorage.setItem("findit_token", data.token);
+    setUser(data.user);
+    return data.user;
+  }
+
+  function register(form) {
+    return api("/auth/register", { method: "POST", body: form });
   }
 
   function logout() {
+    localStorage.removeItem("findit_token");
     setUser(null);
-    localStorage.removeItem("findit_user");
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, ready, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

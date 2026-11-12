@@ -6,6 +6,7 @@ import authRoutes from "./src/routes/auth.js";
 import itemRoutes from "./src/routes/items.js";
 import categoryRoutes from "./src/routes/categories.js";
 import claimRoutes from "./src/routes/claims.js";
+import statsRoutes from "./src/routes/stats.js";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/items", itemRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/claims", claimRoutes);
+app.use("/api/stats", statsRoutes);
 
 // Any error that was not handled inside a route ends up here
 app.use((err, req, res, next) => {

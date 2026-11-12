@@ -9,6 +9,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [busy, setBusy] = useState(false);
 
   function validate() {
     const found = {};
@@ -23,19 +24,22 @@ export default function Login() {
     return found;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const found = validate();
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
-    const loggedIn = login(email, password);
-    if (!loggedIn) {
-      setErrors({ form: "Wrong email or password." });
-      return;
+    setBusy(true);
+    try {
+      const loggedIn = await login(email, password);
+      navigate(loggedIn.role === "admin" ? "/admin" : "/");
+    } catch (err) {
+      setErrors({ form: err.message });
+    } finally {
+      setBusy(false);
     }
-    navigate(loggedIn.role === "admin" ? "/admin" : "/");
   }
 
   return (
@@ -79,19 +83,14 @@ export default function Login() {
         </div>
 
         {errors.form && <p className="error">{errors.form}</p>}
-        <button type="submit" className="btn">Log in</button>
+        <button type="submit" className="btn" disabled={busy}>
+          {busy ? "Logging in..." : "Log in"}
+        </button>
       </form>
 
       <p className="switch">
         New to FindIt? <Link to="/register" className="link">Create an account</Link>
       </p>
-
-      {/* Demo accounts. Delete this box before submitting the project. */}
-      <div className="demo-box">
-        <b>Demo accounts</b>
-        <p>Student: user@college.edu / user123</p>
-        <p>Admin: admin@college.edu / admin123</p>
-      </div>
     </AuthLayout>
   );
 }

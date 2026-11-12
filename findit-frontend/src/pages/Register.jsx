@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [form, setForm] = useState({
     name: "",
     regNo: "",
@@ -12,11 +14,14 @@ export default function Register() {
     confirm: "",
   });
   const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+  const [busy, setBusy] = useState(false);
 
   function handleChange(e) {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-    setErrors({ ...errors, [name]: "" }); // clear this field's message while typing
+    setErrors({ ...errors, [name]: "" });
+    setServerError("");
   }
 
   function validate() {
@@ -44,15 +49,28 @@ export default function Register() {
     return found;
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const found = validate();
     setErrors(found);
     if (Object.keys(found).length > 0) return;
 
-    // Fake register for now. The real one comes with the backend.
-    navigate("/login");
+    setBusy(true);
+    try {
+      // "confirm" is only for checking in the browser, so it is not sent
+      await register({
+        name: form.name,
+        regNo: form.regNo,
+        email: form.email,
+        password: form.password,
+      });
+      navigate("/login");
+    } catch (err) {
+      setServerError(err.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -131,7 +149,10 @@ export default function Register() {
           </div>
         </div>
 
-        <button type="submit" className="btn">Create account</button>
+        {serverError && <p className="error">{serverError}</p>}
+        <button type="submit" className="btn" disabled={busy}>
+          {busy ? "Creating account..." : "Create account"}
+        </button>
       </form>
 
       <p className="switch">
