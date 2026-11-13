@@ -4,6 +4,9 @@ import { api } from "../api";
 
 const categories = ["Wallet", "Phone", "Keys", "Bag", "Books", "ID card", "Electronics", "Other"];
 
+const MAX_PHOTO_MB = 3;
+const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
 export default function ReportItem() {
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
@@ -17,7 +20,8 @@ export default function ReportItem() {
     contact: "",
     description: "",
   });
-  const [photo, setPhoto] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -28,7 +32,38 @@ export default function ReportItem() {
 
   function handlePhoto(e) {
     const file = e.target.files[0];
-    setPhoto(file ? URL.createObjectURL(file) : null);
+
+    if (!file) {
+      setPhotoFile(null);
+      setPreview(null);
+      return;
+    }
+
+    // Check in the browser first, so the user finds out straight away
+    if (!PHOTO_TYPES.includes(file.type)) {
+      setError("Only JPG, PNG or WebP photos are allowed.");
+      e.target.value = "";
+      setPhotoFile(null);
+      setPreview(null);
+      return;
+    }
+    if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
+      setError(`The photo is too large (${MAX_PHOTO_MB} MB maximum).`);
+      e.target.value = "";
+      setPhotoFile(null);
+      setPreview(null);
+      return;
+    }
+
+    setError("");
+    setPhotoFile(file);
+    setPreview(URL.createObjectURL(file));
+  }
+
+  function removePhoto() {
+    setPhotoFile(null);
+    setPreview(null);
+    document.getElementById("photo").value = "";
   }
 
   async function handleSubmit(e) {
@@ -36,8 +71,13 @@ export default function ReportItem() {
     setBusy(true);
     setError("");
 
+    // A form with a file must be sent as FormData, not JSON
+    const data = new FormData();
+    Object.entries(form).forEach(([key, value]) => data.append(key, value));
+    if (photoFile) data.append("photo", photoFile);
+
     try {
-      await api("/items", { method: "POST", body: form });
+      await api("/items", { method: "POST", body: data });
       navigate("/my-reports");
     } catch (err) {
       setError(err.message);
@@ -130,9 +170,19 @@ export default function ReportItem() {
 
         <div className="full">
           <label htmlFor="photo">Photo (optional)</label>
-          <input id="photo" type="file" accept="image/*" onChange={handlePhoto} />
-          {photo && <img src={photo} alt="Preview" className="preview" />}
-          <p className="hint">Photo upload is coming soon. Your report is saved without the photo for now.</p>
+          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhoto} />
+          <p className="hint">
+            JPG, PNG or WebP, up to {MAX_PHOTO_MB} MB. Photos are public, so don't
+            show ID numbers, card numbers or other personal details.
+          </p>
+          {preview && (
+            <>
+              <img src={preview} alt="Preview" className="preview" />
+              <button type="button" className="btn alt sm remove-photo" onClick={removePhoto}>
+                Remove photo
+              </button>
+            </>
+          )}
         </div>
 
         {error && <p className="error full">{error}</p>}

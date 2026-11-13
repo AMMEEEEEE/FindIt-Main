@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../api";
+import { api, imageUrl } from "../api";
 import { useAuth } from "../context/AuthContext";
 
 const steps = [
@@ -96,6 +96,10 @@ export default function ItemDetails() {
             </span>
           </div>
           <h1 className="item-title">{item.name}</h1>
+
+          {item.image && (
+            <img src={imageUrl(item.image)} alt={item.name} className="detail-img" />
+          )}
 
           <dl className="facts">
             <div>

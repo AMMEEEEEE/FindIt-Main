@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { imageUrl } from "../api";
 
 const statusLabel = {
   open: "Open",
@@ -9,6 +10,14 @@ const statusLabel = {
 export default function ItemCard({ item }) {
   return (
     <div className="card">
+      {item.image && (
+        <img
+          src={imageUrl(item.image)}
+          alt={item.name}
+          className="thumb"
+          loading="lazy"
+        />
+      )}
       <div className="row">
         <span className={`tag ${item.type}`}>
           {item.type === "lost" ? "Lost" : "Found"}

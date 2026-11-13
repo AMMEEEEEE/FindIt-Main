@@ -1180,3 +1180,32 @@ input.invalid {
 input::-ms-reveal {
   display: none;
 }
+
+/* ---------- 24. PHOTOS ---------- */
+
+/* Photo at the top of an item card (Home) */
+.thumb {
+  display: block;
+  width: 100%;
+  height: 180px;
+  margin-bottom: 14px;
+  object-fit: cover;       /* crops to fill the box without stretching */
+  background: #ECEFEE;
+  border-radius: 10px;
+}
+
+/* Photo on the Item details page */
+.detail-img {
+  display: block;
+  width: 100%;
+  max-height: 380px;
+  margin: 16px 0 4px;
+  object-fit: cover;
+  background: #ECEFEE;
+  border-radius: 12px;
+}
+
+.remove-photo {
+  margin-top: 10px;
+}
+
