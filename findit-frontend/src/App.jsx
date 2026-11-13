@@ -14,6 +14,7 @@ import AdminListings from "./pages/AdminListings";
 import AdminClaims from "./pages/AdminClaims";
 import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/items/:id" element={<ItemDetails />} />
 
         {/* Logged-in users only */}
