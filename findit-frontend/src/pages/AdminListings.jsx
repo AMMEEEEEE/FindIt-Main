@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { items as initialItems } from "../data/items";
+import { api } from "../api";
 
 export default function AdminListings() {
-  // Copy the data into state so changes show on screen
-  const [items, setItems] = useState(initialItems);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [busyId, setBusyId] = useState(null);
+
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    api("/items")
+      .then(setItems)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const shown = items.filter((item) => {
     const text = `${item.name} ${item.category} ${item.location}`.toLowerCase();
@@ -18,13 +28,37 @@ export default function AdminListings() {
     );
   });
 
-  function changeStatus(id, newStatus) {
-    setItems(items.map((i) => (i.id === id ? { ...i, status: newStatus } : i)));
+  async function changeStatus(id, newStatus) {
+    setBusyId(id);
+    setError("");
+    try {
+      await api(`/items/${id}/status`, { method: "PATCH", body: { status: newStatus } });
+      setItems(items.map((i) => (i.id === id ? { ...i, status: newStatus } : i)));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyId(null);
+    }
   }
 
-  function deleteItem(id) {
-    if (window.confirm("Delete this listing? This cannot be undone.")) {
-      setItems(items.filter((i) => i.id !== id));
+  async function deleteItem(item) {
+    if (
+      !window.confirm(
+        `Delete "${item.name}"? Its claims will be deleted too. This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setBusyId(item.id);
+    setError("");
+    try {
+      await api(`/items/${item.id}`, { method: "DELETE" });
+      setItems(items.filter((i) => i.id !== item.id));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyId(null);
     }
   }
 
@@ -53,6 +87,8 @@ export default function AdminListings() {
         </select>
       </div>
 
+      {error && <p className="error">{error}</p>}
+
       <div className="card">
         <div className="scroll">
           <table className="tbl">
@@ -67,7 +103,11 @@ export default function AdminListings() {
               </tr>
             </thead>
             <tbody>
-              {shown.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="empty">Loading...</td>
+                </tr>
+              ) : shown.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="empty">No listings match your filters.</td>
                 </tr>
@@ -89,6 +129,7 @@ export default function AdminListings() {
                       <select
                         className="status-select"
                         value={item.status}
+                        disabled={busyId === item.id}
                         onChange={(e) => changeStatus(item.id, e.target.value)}
                       >
                         <option value="open">Open</option>
@@ -99,7 +140,11 @@ export default function AdminListings() {
                     <td>
                       <div className="actions">
                         <Link to={`/items/${item.id}`} className="btn alt sm">View</Link>
-                        <button className="btn no sm" onClick={() => deleteItem(item.id)}>
+                        <button
+                          className="btn no sm"
+                          disabled={busyId === item.id}
+                          onClick={() => deleteItem(item)}
+                        >
                           Delete
                         </button>
                       </div>
